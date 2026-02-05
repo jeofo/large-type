@@ -35,31 +35,95 @@ window.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function calculateOptimalLayout(textLength) {
+    var screenWidth = window.innerWidth;
+    var screenHeight = window.innerHeight;
+
+    // Use most of screen space with small margin
+    var availableWidth = screenWidth * 0.94;
+    var availableHeight = screenHeight * 0.75;
+
+    // Monospace char width is ~0.6 of font size
+    var charWidthRatio = 0.62;
+    // Line height includes the counter number below
+    var lineHeightRatio = 1.35;
+
+    var bestFontSize = 0;
+    var bestNumLines = 1;
+
+    // Try different numbers of lines (up to 15 for longer text)
+    var maxLines = Math.min(textLength, 15);
+    for (var numLines = 1; numLines <= maxLines; numLines++) {
+      var charsPerLine = Math.ceil(textLength / numLines);
+
+      // Font size limited by width
+      var maxFontByWidth = availableWidth / (charWidthRatio * charsPerLine);
+
+      // Font size limited by height
+      var maxFontByHeight = availableHeight / (lineHeightRatio * numLines);
+
+      var maxFont = Math.min(maxFontByWidth, maxFontByHeight);
+
+      if (maxFont > bestFontSize) {
+        bestFontSize = maxFont;
+        bestNumLines = numLines;
+      }
+    }
+
+    // Convert to vw and cap at reasonable max
+    var fontSizeVw = Math.min((bestFontSize / screenWidth) * 100, 25);
+    var charsPerLine = Math.ceil(textLength / bestNumLines);
+
+    return {
+      fontSize: fontSizeVw,
+      charsPerLine: charsPerLine,
+      numLines: bestNumLines
+    };
+  }
+
   function renderText() {
     // Return a space as typing indicator if text is empty.
     var text = decodeURIComponent(location.hash.split("#")[1] || " ");
-    var fontSize = Math.min(150 / text.length, 30);
+    var chars = text.split(/.*?/u);
+    var layout = calculateOptimalLayout(chars.length);
 
     clearChars();
 
-    text.split(/.*?/u).forEach(function (chr) {
-      var charbox = charboxTemplate.content.cloneNode(true);
-      var charElem = charbox.querySelector(".char");
-      charElem.style.fontSize = fontSize + "vw";
+    // Split chars into rows
+    var rows = [];
+    for (var i = 0; i < chars.length; i += layout.charsPerLine) {
+      rows.push(chars.slice(i, i + layout.charsPerLine));
+    }
 
-      if (chr !== " ") {
-        charElem.textContent = chr;
-      } else {
-        charElem.innerHTML = "&nbsp;";
-      }
+    var charIndex = 0;
+    rows.forEach(function (rowChars) {
+      var rowElem = document.createElement("div");
+      rowElem.className = "text-row";
 
-      if (chr.match(/[0-9]/i)) {
-        charElem.className = "number";
-      } else if (!chr.match(/\p{L}/iu)) {
-        charElem.className = "symbol";
-      }
+      rowChars.forEach(function (chr) {
+        charIndex++;
+        var charbox = charboxTemplate.content.cloneNode(true);
+        var charElem = charbox.querySelector(".char");
+        var liElem = charbox.querySelector(".charbox");
+        charElem.style.fontSize = layout.fontSize + "vw";
+        liElem.setAttribute("data-index", charIndex);
 
-      textDiv.appendChild(charbox);
+        if (chr !== " ") {
+          charElem.textContent = chr;
+        } else {
+          charElem.innerHTML = "&nbsp;";
+        }
+
+        if (chr.match(/[0-9]/i)) {
+          charElem.className = "number";
+        } else if (!chr.match(/\p{L}/iu)) {
+          charElem.className = "symbol";
+        }
+
+        rowElem.appendChild(charbox);
+      });
+
+      textDiv.appendChild(rowElem);
     });
 
     // Ignore the placeholder space (typing indicator).
@@ -155,6 +219,7 @@ window.addEventListener("DOMContentLoaded", function () {
   textDiv.addEventListener("click", enterInputMode, false);
   window.addEventListener("keypress", enterInputMode, false);
   window.addEventListener("hashchange", renderText, false);
+  window.addEventListener("resize", renderText, false);
 
   if (!location.hash) {
     updateFragment(WELCOME_MSG);
