@@ -35,7 +35,31 @@ window.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function calculateOptimalLayout(textLength) {
+  function charCount(str) {
+    return Array.from(str).length;
+  }
+
+  function greedyWordWrap(text, maxWidth) {
+    var words = text.split(' ');
+    if (words.length <= 1) return [text];
+    var lines = [];
+    var currentLine = words[0];
+    for (var i = 1; i < words.length; i++) {
+      if (charCount(currentLine) + 1 + charCount(words[i]) <= maxWidth) {
+        currentLine += ' ' + words[i];
+      } else {
+        lines.push(currentLine);
+        currentLine = words[i];
+      }
+    }
+    lines.push(currentLine);
+    return lines;
+  }
+
+  function calculateOptimalLayout(text) {
+    var textLength = charCount(text);
+    var words = text.split(' ');
+    var hasMultipleWords = words.length > 1;
     var screenWidth = window.innerWidth;
     var screenHeight = window.innerHeight;
 
@@ -49,50 +73,89 @@ window.addEventListener("DOMContentLoaded", function () {
     var lineHeightRatio = 1.35;
 
     var bestFontSize = 0;
-    var bestNumLines = 1;
+    var bestLines = null;
+    var bestCharsPerLine = textLength;
 
     // Try different numbers of lines (up to 15 for longer text)
     var maxLines = Math.min(textLength, 15);
     for (var numLines = 1; numLines <= maxLines; numLines++) {
-      var charsPerLine = Math.ceil(textLength / numLines);
+      var longestLineLen, actualNumLines, candidateLines;
+
+      if (hasMultipleWords) {
+        // Start with ideal target width
+        var targetWidth = Math.ceil(textLength / numLines);
+        // Can't wrap shorter than the longest word
+        for (var w = 0; w < words.length; w++) {
+          var wLen = charCount(words[w]);
+          if (wLen > targetWidth) targetWidth = wLen;
+        }
+
+        candidateLines = greedyWordWrap(text, targetWidth);
+        // Increase width until text fits in numLines
+        while (candidateLines.length > numLines) {
+          targetWidth++;
+          candidateLines = greedyWordWrap(text, targetWidth);
+        }
+
+        actualNumLines = candidateLines.length;
+        longestLineLen = 0;
+        for (var j = 0; j < candidateLines.length; j++) {
+          var len = charCount(candidateLines[j]);
+          if (len > longestLineLen) longestLineLen = len;
+        }
+      } else {
+        // Single word - split evenly by characters
+        longestLineLen = Math.ceil(textLength / numLines);
+        actualNumLines = numLines;
+        candidateLines = null;
+      }
 
       // Font size limited by width
-      var maxFontByWidth = availableWidth / (charWidthRatio * charsPerLine);
+      var maxFontByWidth = availableWidth / (charWidthRatio * longestLineLen);
 
       // Font size limited by height
-      var maxFontByHeight = availableHeight / (lineHeightRatio * numLines);
+      var maxFontByHeight = availableHeight / (lineHeightRatio * actualNumLines);
 
       var maxFont = Math.min(maxFontByWidth, maxFontByHeight);
 
       if (maxFont > bestFontSize) {
         bestFontSize = maxFont;
-        bestNumLines = numLines;
+        bestLines = candidateLines;
+        bestCharsPerLine = longestLineLen;
       }
     }
 
     // Convert to vw and cap at reasonable max
     var fontSizeVw = Math.min((bestFontSize / screenWidth) * 100, 25);
-    var charsPerLine = Math.ceil(textLength / bestNumLines);
 
     return {
       fontSize: fontSizeVw,
-      charsPerLine: charsPerLine,
-      numLines: bestNumLines
+      lines: bestLines,
+      charsPerLine: bestCharsPerLine
     };
   }
 
   function renderText() {
     // Return a space as typing indicator if text is empty.
     var text = decodeURIComponent(location.hash.split("#")[1] || " ");
-    var chars = text.split(/.*?/u);
-    var layout = calculateOptimalLayout(chars.length);
+    var layout = calculateOptimalLayout(text);
 
     clearChars();
 
-    // Split chars into rows
-    var rows = [];
-    for (var i = 0; i < chars.length; i += layout.charsPerLine) {
-      rows.push(chars.slice(i, i + layout.charsPerLine));
+    // Build rows of characters, keeping words on the same line
+    var rows;
+    if (layout.lines) {
+      // Word-wrapped lines
+      rows = layout.lines.map(function (line) {
+        return Array.from(line);
+      });
+    } else {
+      // No spaces - split evenly by character count
+      var chars = Array.from(text);
+      rows = [];
+      for (var i = 0; i < chars.length; i += layout.charsPerLine) {
+        rows.push(chars.slice(i, i + layout.charsPerLine));
+      }
     }
 
     var charIndex = 0;
