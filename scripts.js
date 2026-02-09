@@ -221,6 +221,46 @@ window.addEventListener("DOMContentLoaded", function () {
   window.addEventListener("hashchange", renderText, false);
   window.addEventListener("resize", renderText, false);
 
+  // Dark mode toggle
+  var themeToggle = document.querySelector(".theme-toggle");
+  var root = document.documentElement;
+
+  function getSystemTheme() {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  }
+
+  function applyTheme() {
+    var stored = localStorage.getItem("theme");
+    if (stored === "dark" || stored === "light") {
+      root.setAttribute("data-theme", stored);
+    } else {
+      root.removeAttribute("data-theme");
+    }
+  }
+
+  function toggleTheme() {
+    var stored = localStorage.getItem("theme");
+    var current = stored || getSystemTheme();
+    var next = current === "dark" ? "light" : "dark";
+    localStorage.setItem("theme", next);
+    applyTheme();
+  }
+
+  themeToggle.addEventListener("click", toggleTheme, false);
+
+  // Listen for system theme changes
+  window
+    .matchMedia("(prefers-color-scheme: dark)")
+    .addEventListener("change", function () {
+      if (!localStorage.getItem("theme")) {
+        applyTheme();
+      }
+    });
+
+  applyTheme();
+
   if (!location.hash) {
     updateFragment(WELCOME_MSG);
   }

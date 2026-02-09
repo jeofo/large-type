@@ -5,11 +5,100 @@
   padding: 0;
 }
 
+:root {
+  --bg: #ffffff;
+  --text: #222222;
+  --text-muted: #999999;
+  --link: #b94669;
+  --link-hover: #d36083;
+  --link-active: #a02d50;
+  --input-border: #cccccc;
+  --input-shadow: rgba(0, 0, 0, 0.075);
+  --input-placeholder: #cccccc;
+  --box-border: #eeeeee;
+  --box-shadow: #aaaaaa;
+  --char-odd: #ffffff;
+  --char-even: #f7f7f7;
+  --char-index: #aaaaaa;
+  --number: #456cad;
+  --symbol: #b94669;
+  --modal-bg: #ffffff;
+  --modal-shadow: rgba(0, 0, 0, 0.6);
+  --modal-btn: #b94669;
+  --modal-btn-hover: #d36083;
+  --modal-btn-active: #a02d50;
+  --inputarea-link: #cccccc;
+  --inputarea-link-hover: #222222;
+  --toggle-bg: transparent;
+  --toggle-hover: rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1a1a2e;
+    --text: #e0e0e0;
+    --text-muted: #777777;
+    --link: #d4607f;
+    --link-hover: #e88aa3;
+    --link-active: #b94669;
+    --input-border: #444444;
+    --input-shadow: rgba(0, 0, 0, 0.3);
+    --input-placeholder: #666666;
+    --box-border: #333333;
+    --box-shadow: rgba(0, 0, 0, 0.5);
+    --char-odd: #242440;
+    --char-even: #1e1e34;
+    --char-index: #666666;
+    --number: #6b9ade;
+    --symbol: #d4607f;
+    --modal-bg: #242440;
+    --modal-shadow: rgba(0, 0, 0, 0.8);
+    --modal-btn: #d4607f;
+    --modal-btn-hover: #e88aa3;
+    --modal-btn-active: #b94669;
+    --inputarea-link: #666666;
+    --inputarea-link-hover: #e0e0e0;
+    --toggle-bg: transparent;
+    --toggle-hover: rgba(255, 255, 255, 0.1);
+  }
+}
+
+[data-theme="dark"] {
+  --bg: #1a1a2e;
+  --text: #e0e0e0;
+  --text-muted: #777777;
+  --link: #d4607f;
+  --link-hover: #e88aa3;
+  --link-active: #b94669;
+  --input-border: #444444;
+  --input-shadow: rgba(0, 0, 0, 0.3);
+  --input-placeholder: #666666;
+  --box-border: #333333;
+  --box-shadow: rgba(0, 0, 0, 0.5);
+  --char-odd: #242440;
+  --char-even: #1e1e34;
+  --char-index: #666666;
+  --number: #6b9ade;
+  --symbol: #d4607f;
+  --modal-bg: #242440;
+  --modal-shadow: rgba(0, 0, 0, 0.8);
+  --modal-btn: #d4607f;
+  --modal-btn-hover: #e88aa3;
+  --modal-btn-active: #b94669;
+  --inputarea-link: #666666;
+  --inputarea-link-hover: #e0e0e0;
+  --toggle-bg: transparent;
+  --toggle-hover: rgba(255, 255, 255, 0.1);
+}
+
 html,
 body {
   font-family: sans-serif;
   height: 100%;
   overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 h1,
@@ -23,27 +112,27 @@ p {
 }
 
 a {
-  color: #b94669;
+  color: var(--link);
   text-decoration: none;
 }
 
 a:visited {
-  color: #b94669;
+  color: var(--link);
 }
 
 a:hover {
-  color: #d36083;
+  color: var(--link-hover);
   text-decoration: underline;
 }
 
 a:active {
-  color: #a02d50;
+  color: var(--link-active);
 }
 
 input {
   border-radius: 3px;
-  border: 1px solid #ccc;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+  border: 1px solid var(--input-border);
+  box-shadow: inset 0 1px 2px var(--input-shadow);
   font-family: sans-serif;
   font-size: 12px;
   min-height: 26px;
@@ -51,17 +140,20 @@ input {
   padding: 2px;
   text-align: center;
   width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 input:focus {
   box-shadow:
-    inset 0 1px 2px rgba(0, 0, 0, 0.075),
+    inset 0 1px 2px var(--input-shadow),
     0 0 5px rgba(81, 167, 232, 0.5);
   outline: none;
 }
 
 input::-webkit-input-placeholder {
-  color: #ccc;
+  color: var(--input-placeholder);
 }
 
 /*** Anims ************************************************************/
@@ -79,7 +171,7 @@ input::-webkit-input-placeholder {
 
 .main {
   align-items: center;
-  color: #222;
+  color: var(--text);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -117,20 +209,20 @@ input::-webkit-input-placeholder {
 }
 
 .inputarea a {
-  color: #ccc;
+  color: var(--inputarea-link);
   margin: 5px 5px;
   padding: 2px;
 }
 
 .inputarea a:hover {
-  color: #222;
+  color: var(--inputarea-link-hover);
   text-decoration: underline;
 }
 
 .text {
   border-radius: 6px;
-  border: 1px solid #eee;
-  box-shadow: 5px 5px 30px 3px #aaa;
+  border: 1px solid var(--box-border);
+  box-shadow: 5px 5px 30px 3px var(--box-shadow);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -138,6 +230,7 @@ input::-webkit-input-placeholder {
   list-style: none;
   padding: 0;
   margin: 0;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .text-row {
@@ -153,19 +246,19 @@ input::-webkit-input-placeholder {
 }
 
 .text li .number {
-  color: #456cad;
+  color: var(--number);
 }
 
 .text li .symbol {
-  color: #b94669;
+  color: var(--symbol);
 }
 
 .text li:nth-child(odd) {
-  background: white;
+  background: var(--char-odd);
 }
 
 .text li:nth-child(even) {
-  background: #f7f7f7;
+  background: var(--char-even);
 }
 
 .text li::after {
@@ -174,7 +267,7 @@ input::-webkit-input-placeholder {
   -ms-user-select: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  color: #aaa;
+  color: var(--char-index);
   content: attr(data-index);
   display: block;
   font-size: 1.5vw;
@@ -199,11 +292,11 @@ input::-webkit-input-placeholder {
   width: 100%;
   font-size: 1em;
   font-weight: lighter;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .about a {
-  color: #666;
+  color: var(--text-muted);
 }
 
 @media only screen and (max-width: 700px) {
@@ -224,9 +317,9 @@ input::-webkit-input-placeholder {
 
 .modal {
   -webkit-overflow-scrolling: touch;
-  background: white;
+  background: var(--modal-bg);
   border-radius: 3px;
-  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.6);
+  box-shadow: 0px 0px 20px var(--modal-shadow);
   left: 50%;
   max-height: 90%;
   opacity: 0;
@@ -239,6 +332,7 @@ input::-webkit-input-placeholder {
   transition: all 0.25s ease;
   width: 50%;
   z-index: 99;
+  color: var(--text);
 }
 
 @media only screen and (max-width: 700px) {
@@ -258,7 +352,7 @@ input::-webkit-input-placeholder {
   -ms-transition: 0.15s background ease;
   -o-transition: 0.15s background ease;
   -webkit-transition: 0.15s background ease;
-  background: #b94669;
+  background: var(--modal-btn);
   border-radius: 1px;
   border: 0px;
   color: #fff;
@@ -272,10 +366,10 @@ input::-webkit-input-placeholder {
 }
 
 .modal button:hover {
-  background: #d36083;
+  background: var(--modal-btn-hover);
 }
 .modal button:active {
-  background: #a02d50;
+  background: var(--modal-btn-active);
 }
 
 .modal input {
@@ -294,3 +388,53 @@ input::-webkit-input-placeholder {
 .modal li {
   margin-top: 7.5px;
 }
+
+/*** Theme Toggle *****************************************************/
+
+.theme-toggle {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 100;
+  background: var(--toggle-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  padding: 0;
+  outline: none;
+}
+
+.theme-toggle:hover {
+  background: var(--toggle-hover);
+  color: var(--text);
+}
+
+.theme-toggle .theme-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Light mode (default): show moon icon */
+.theme-toggle .sun { display: none; }
+.theme-toggle .moon { display: block; }
+
+/* System dark preference (no explicit theme): show sun icon */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .sun { display: block; }
+  :root:not([data-theme="light"]) .theme-toggle .moon { display: none; }
+}
+
+/* Explicit dark: show sun icon */
+[data-theme="dark"] .theme-toggle .sun { display: block; }
+[data-theme="dark"] .theme-toggle .moon { display: none; }
+
+/* Explicit light: show moon icon */
+[data-theme="light"] .theme-toggle .sun { display: none; }
+[data-theme="light"] .theme-toggle .moon { display: block; }
